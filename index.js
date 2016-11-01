@@ -89,7 +89,7 @@ module.exports = function (
     }
 
     // invoke virtual dom
-    return vue._createElement(this._self, tag, obj, ary)
+    return Vue._createElement(this._self, tag, obj, ary)
   }
 
   if (data && (Array.isArray(data) || typeof data !== 'object')) {
@@ -97,5 +97,5 @@ module.exports = function (
     data = undefined;
   }
   // make sure to use real instance instead of proxy as context
-  return vue._createElement(this._self, tag, data, children)
+  return Vue._createElement(this._self, tag, data, children)
 }
