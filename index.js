@@ -1,24 +1,18 @@
-(function(vue) {
+var reserved = 'attrs directives domProps key nativeOn on props ref slot style'.split(' ').reduce(function (reserved, key) {
+  reserved[key] = true;
+  return reserved;
+}, {})
 
-module.exports = function (tag, data, children) {
+module.exports = function (
+  tag,
+  data,
+  children
+) {
   var len = arguments.length;
   var str = typeof tag === 'string';
-  var yes;
 
-  // check for enhanced render arguments
-  if (len > 3 || tag === '' || (str && (tag.charAt(0) === '.' || tag.match(/[.@!?]/)))) {
-    yes = 1;
-  } else if (str && len > 1) {
-    var end = arguments[len - 1];
-    var aos = Array.isArray(end) || typeof end === 'string';
-    if (!(len === 2 && aos)) {
-      var uno = data === undefined || data === null || typeof data === 'object' && data.constructor.name === 'Object';
-      yes = !((len === 2 && uno) || (len === 3 && uno && aos));
-    }
-  }
-
-  // process enhanced render arguments
-  if (yes) {
+  // check for and process enhanced render arguments
+  if (len > 3 || tag === '' || (str && (tag.charAt(0) === '.' || tag.match(/[.@!?]/))) || (data && typeof data === 'object')) {
     var chr;
     var raw;
     var dbg;
@@ -26,7 +20,7 @@ module.exports = function (tag, data, children) {
     var cls = [];
     var eid;
 
-    // check for tag, class, id, and trailing "!" (unsafe HTML)
+    // parse tag for class, id, or trailing "!" (unsafe HTML) or "?" (debug mode)
     tag = ary.shift();
     if (str) {
       len = tag.length;
@@ -52,37 +46,43 @@ module.exports = function (tag, data, children) {
     // process obj
     var obj = ary.shift();
     str = obj != null ? obj.constructor.name : null;
-    if (str === 'Number' || str === 'Boolean') {
+    if (str === 'Object') {
+      obj.attrs = obj.attrs || {};
+      Object.keys(obj).forEach(function (key) {
+        if (!reserved[key]) {
+          obj.attrs[key] = obj[key];
+          delete obj[key];
+        }
+      });
+    } else if (str === 'Boolean') {
       if (!obj) { return }
       obj = undefined;
-    } else if (str !== 'Object') {
+    } else {
       ary.unshift(obj);
       obj = undefined;
     }
 
-    // set properties
+    // set easy-tags properties
     if (cls || eid || raw || dbg) {
       if (!obj) { obj = {}; }
       if (cls) { obj.staticClass = cls.join(' '); }
-      if (eid) { obj.attrs = { id: eid }; }
+      if (eid) { obj.attrs = obj.attrs || {}; obj.attrs.id = eid; }
       if (raw) { obj.domProps = { innerHTML: ary.shift() }; }
       if (dbg) {
         tag = 'pre'; // override tag?
         obj.style = {
-          'color': 'red',
           'margin': '0',
-          'padding': '10px',
           'border': '1px solid red',
+          'padding': '10px',
+          'color': 'red',
           'background': '#fcfcb8',
           'line-height': '16px',
           'font-size': '12px',
           'white-space': 'pre-line'
         };
-        const spy = function spy (obj) {
-        };
-        console.log(ary, typeof ary);
+        const spy = function spy (obj) { }; // add function to deep-dive into children...
         ary = (Array.isArray(ary[0]) ? ary[0] : ary).map(function(val) {
-          return `\n[${val.tag || val.text}, ${JSON.stringify(val.data)}]\n`;
+          return `\n[${val.tag || val.text || JSON.stringify(val)}, ${JSON.stringify(val.data)}]\n`;
         });
         ary.unshift("Debug:\n");
       }
@@ -99,5 +99,3 @@ module.exports = function (tag, data, children) {
   // make sure to use real instance instead of proxy as context
   return vue._createElement(this._self, tag, data, children)
 }
-
-})(window.vue);
