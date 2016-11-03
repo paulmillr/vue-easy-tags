@@ -18,14 +18,14 @@ function toArray (list, start) {
 }
 
 module.exports = function (tag, data, children) {
-  var pos = 1;
+  var beg = 1;
 
   // process boolean short circuit
   if (typeof data === 'boolean') {
     if (!data) { return; }
     data = children;
     children = arguments[3];
-    pos++;
+    beg++;
   }
 
   // adjust arguments
@@ -33,17 +33,19 @@ module.exports = function (tag, data, children) {
     if (Array.isArray(data) || _typeof(data) !== 'object') {
       children = data;
       data = undefined;
-    } else if (data.constructor.name === 'VNode') {
-      children = toArray(arguments, pos);
+    } else if (data.constructor.name !== 'Object') {
+      children = toArray(arguments, beg);
       data = undefined;
     }
   }
-  if (children && _typeof(children) === 'object' && children.constructor.name === 'VNode') {
-    children = toArray(arguments, pos + 1);
+  if (children && !(Array.isArray(children) || _typeof(children) !== 'object')) {
+    children = toArray(arguments, beg + 1);
   }
 
   // process tag modifiers
-  if (tag === '' || typeof tag === 'string' && tag.match(/[.@!?]/)) {
+  if (tag === '') {
+    tag = 'div';
+  } else if (typeof tag === 'string' && tag.match(/[.@!?]/)) {
     var cls = [];
     var eid;
     var raw;
