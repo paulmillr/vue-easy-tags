@@ -1,7 +1,11 @@
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var reserved = 'attrs class directives domProps key nativeOn on props ref slot staticClass style'.split(' ').reduce(function (reserved, key) {
   reserved[key] = true;
   return reserved;
-}, {})
+}, {});
 
 function toArray (list, start) {
   start = start || 0;
@@ -13,11 +17,7 @@ function toArray (list, start) {
   return ret;
 }
 
-module.exports = function (
-  tag,
-  data,
-  children
-) {
+module.exports = function (tag, data, children) {
   var pos = 1;
 
   // process boolean short circuit
@@ -30,7 +30,7 @@ module.exports = function (
 
   // adjust arguments
   if (data) {
-    if (Array.isArray(data) || typeof data !== 'object') {
+    if (Array.isArray(data) || _typeof(data) !== 'object') {
       children = data;
       data = undefined;
     } else if (data.constructor.name === 'VNode') {
@@ -38,7 +38,7 @@ module.exports = function (
       data = undefined;
     }
   }
-  if (children && typeof children === 'object' && children.constructor.name === 'VNode') {
+  if (children && _typeof(children) === 'object' && children.constructor.name === 'VNode') {
     children = toArray(arguments, pos + 1);
   }
 
@@ -53,7 +53,7 @@ module.exports = function (
     var len = tag.length;
     var chr = tag.charAt(len - 1);
     if (chr === '!' || chr === '?') {
-      chr === '!' ? (raw = true) : (dbg = true);
+      chr === '!' ? raw = true : dbg = true;
       tag = tag.slice(0, len - 1);
     }
 
@@ -111,5 +111,5 @@ module.exports = function (
   }
 
   // make sure to use real instance instead of proxy as context
-  return Vue._createElement(this._self, tag, data, children)
-}
+  return Vue._createElement(this._self, tag, data, children);
+};
