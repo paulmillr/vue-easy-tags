@@ -90,7 +90,7 @@ module.exports = function (
         };
         // const spy = function spy (data) { }; // add function to deep-dive into children...
         children = (Array.isArray(children[0]) ? children[0] : children).map(function(val) {
-          return `\n[${val.tag || val.text || JSON.stringify(val)}, ${JSON.stringify(val.data)}]\n`;
+          return "\n[" + (val.tag || val.text || JSON.stringify(val)) + ", " + JSON.stringify(val.data) + "]\n";
         });
         children.unshift("Debug:\n");
       }
