@@ -1,6 +1,6 @@
 {
   "name": "vue-easy-tags",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Easy tags for Vue",
   "main": "index.js",
   "scripts": {
